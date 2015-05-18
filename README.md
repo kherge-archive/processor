@@ -23,6 +23,10 @@ $processor->setExtensions(array('txt'));
 echo $processor->processContents('example.txt', 'Hello, {{ name }}!');
 ```
 
+> It may be important to note that this library is primarily designed to work
+> with PHP archive (phar) building processes. Incompatibilities with non-phar
+> related processes are a secondary concern.
+
 Requirements
 ------------
 
