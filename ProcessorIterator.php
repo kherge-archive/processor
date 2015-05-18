@@ -76,6 +76,11 @@ class ProcessorIterator implements Iterator
             }
         } elseif (is_file($current)) {
             $current = $this->process($current);
+        } elseif (is_string($current)
+            && $this->processor->supports($this->key())) {
+            $current = $this->toStream(
+                $this->processor->processContents($this->key(), $current)
+            );
         }
 
         return $current;
@@ -137,6 +142,24 @@ class ProcessorIterator implements Iterator
             $contents .= $reader->fgets();
         } while (!$reader->eof());
 
+        if ($this->processor->supports($file)) {
+            $contents = $this->processor->processContents($file, $contents);
+        }
+
+        return $this->toStream($contents);
+    }
+
+    /**
+     * Returns a stream for the file contents.
+     *
+     * @param string $contents The file contents.
+     *
+     * @return resource The stream resource.
+     *
+     * @throws ProcessorException If the stream could not be opened.
+     */
+    private function toStream($contents)
+    {
         // @codeCoverageIgnoreStart
         if (false === ($stream = fopen('php://memory', 'r+'))) {
             throw new ProcessorException(
@@ -144,10 +167,6 @@ class ProcessorIterator implements Iterator
             );
         }
         // @codeCoverageIgnoreEnd
-
-        if ($this->processor->supports($file)) {
-            $contents = $this->processor->processContents($file, $contents);
-        }
 
         fwrite($stream, $contents);
         rewind($stream);
