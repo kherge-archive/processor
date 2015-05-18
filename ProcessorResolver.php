@@ -23,7 +23,9 @@ class ProcessorResolver implements ProcessorResolverInterface
      */
     public function __construct(array $processors = array())
     {
-        $this->processors = $processors;
+        foreach ($processors as $processor) {
+            $this->addProcessor($processor);
+        }
     }
 
     /**
