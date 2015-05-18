@@ -145,7 +145,11 @@ class ProcessorIterator implements Iterator
         }
         // @codeCoverageIgnoreEnd
 
-        fwrite($stream, $this->processor->processContents($file, $contents));
+        if ($this->processor->supports($file)) {
+            $contents = $this->processor->processContents($file, $contents);
+        }
+
+        fwrite($stream, $contents);
         rewind($stream);
 
         return $stream;
