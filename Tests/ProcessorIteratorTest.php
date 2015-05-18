@@ -2,13 +2,13 @@
 
 namespace Box\Component\Processor\Tests\Processor;
 
-use Box\Component\Processor\CallbackProcessor;
+use ArrayIterator;
+use Box\Component\Processor\ProcessorInterface;
 use Box\Component\Processor\ProcessorIterator;
 use KHerGe\File\Utility;
-use Phar;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use PHPUnit_Framework_TestCase as TestCase;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
+use SplFileObject;
 
 /**
  * Verifies that the class functions as intended.
@@ -24,15 +24,71 @@ class ProcessorIteratorTest extends TestCase
      */
     private $dir;
 
-    /**
-     * The test archive file path.
-     *
-     * @var string
-     */
-    private $file;
+    public function getIterations()
+    {
+        return array(
+
+            // path => path
+            array(
+                'test.php',
+                function ($dir) {
+                    $file = $dir . '/test.php';
+
+                    file_put_contents(
+                        $file,
+                        '<?php echo "Hello, {{ name }}!\n";'
+                    );
+
+                    return $file;
+                },
+                true,
+                '<?php echo "Hello, {{ name }}!\n";',
+                '<?php echo "Hello, world!\n";'
+            ),
+
+            // path => SplFileObject
+            array(
+                'test.php',
+                function ($dir) {
+                    $file = $dir . '/test.php';
+
+                    file_put_contents(
+                        $file,
+                        '<?php echo "Hello, {{ name }}!\n";'
+                    );
+
+                    return new SplFileObject($file);
+                },
+                true,
+                '<?php echo "Hello, {{ name }}!\n";',
+                '<?php echo "Hello, world!\n";'
+            ),
+
+
+            // path => contents
+            array(
+                'test.php',
+                function () {
+                    return '<?php echo "Hello, {{ name }}!\n";';
+                },
+                true,
+                '<?php echo "Hello, {{ name }}!\n";',
+                '<?php echo "Hello, world!\n";'
+            )
+
+        );
+    }
 
     /**
-     * Verifies that we can process files as they are added to an archive.
+     * Verifies that we can process file contents as they are iterated through.
+     *
+     * @param string   $file      The path to the file.
+     * @param callable $source    Creates a source to process.
+     * @param boolean  $supported Is the file supported?
+     * @param string   $before    The before contents.
+     * @Param string   $after     The after contents.
+     *
+     * @dataProvider getIterations
      *
      * @covers \Box\Component\Processor\ProcessorIterator::__construct
      * @covers \Box\Component\Processor\ProcessorIterator::current
@@ -40,47 +96,57 @@ class ProcessorIteratorTest extends TestCase
      * @covers \Box\Component\Processor\ProcessorIterator::next
      * @covers \Box\Component\Processor\ProcessorIterator::process
      * @covers \Box\Component\Processor\ProcessorIterator::rewind
+     * @covers \Box\Component\Processor\ProcessorIterator::toStream
      * @covers \Box\Component\Processor\ProcessorIterator::valid
      */
-    public function testIterator()
+    public function testIterate($file, $source, $supported, $before, $after)
     {
-        // build test directory structure
-        mkdir($this->dir . '/sub');
+        // prefix with test directory
+        $file = $this->dir . '/' . $file;
 
-        file_put_contents(
-            $this->dir . '/sub/test.php',
-            '<?php echo "Hello, {{ name }}!\n";'
-        );
+        /** @var MockObject|ProcessorInterface $processor */
+        $processor = $this
+            ->getMockBuilder('Box\Component\Processor\ProcessorInterface')
+            ->getMockForAbstractClass()
+        ;
 
-        // create the processor and iterators
+        // set expectations
+        $processor
+            ->expects(self::once())
+            ->method('supports')
+            ->with($file)
+            ->willReturn($supported)
+        ;
+
+        $processor
+            ->expects(self::any())
+            ->method('processContents')
+            ->with($file, $before)
+            ->willReturn($after)
+        ;
+
+        // create iterator with mock processor and iterator
         $iterator = new ProcessorIterator(
-            new CallbackProcessor(
-                function ($file) {
-                    return true;
-                },
-                function ($file, $contents) {
-                    return str_replace('{{ name }}', 'world', $contents);
-                }
-            ),
-            new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(
-                    $this->dir,
-                    RecursiveDirectoryIterator::SKIP_DOTS
+            $processor,
+            new ArrayIterator(
+                array(
+                    $file => $source($this->dir)
                 )
-            ),
-            $this->dir
+            )
         );
 
-        // import the iterator into a new archive
-        $phar = new Phar($this->file);
-        $phar->buildFromIterator($iterator);
+        // iterate
+        foreach ($iterator as $name => $stream) {
+            self::assertInternalType('resource', $stream);
 
-        // make sure the outcome is what we are expecting
-        self::assertArrayHasKey('sub/test.php', $phar);
-        self::assertEquals(
-            '<?php echo "Hello, world!\n";',
-            file_get_contents($phar['sub/test.php'])
-        );
+            $contents = '';
+
+            do {
+                $contents .= fgets($stream);
+            } while (!feof($stream));
+
+            self::assertEquals($after, $contents);
+        }
     }
 
     /**
@@ -88,12 +154,10 @@ class ProcessorIteratorTest extends TestCase
      */
     protected function setUp()
     {
-        unlink($this->dir = tempnam(sys_get_temp_dir(), 'box-'));
+        $this->dir = tempnam(sys_get_temp_dir(), 'box-');
+
+        unlink($this->dir);
         mkdir($this->dir);
-
-        unlink($this->file = tempnam(sys_get_temp_dir(), 'box-'));
-
-        $this->file .= '.phar';
     }
 
     /**
@@ -102,9 +166,5 @@ class ProcessorIteratorTest extends TestCase
     protected function tearDown()
     {
         Utility::remove($this->dir);
-
-        if (file_exists($this->file)) {
-            unlink($this->file);
-        }
     }
 }
