@@ -233,6 +233,36 @@ supported. While the key must always be the path to the file, the value may
 be the path to the file, an instance of `SplFileObject`, or the contents of
 the file.
 
+Event Handling
+--------------
+
+> To properly understand this section of the documentation, you need to be
+> familiar with Symfony's [EventDispatcher][] library. This library is used
+> to manage all events in the **Processor** library.
+
+```php
+use Box\Component\Processor\Event\PostProcessingEvent;
+use Box\Component\Processor\Event\PreProcessingEvent;
+use Box\Component\Processor\Events;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+```
+
+All processors are expected to accept an instance of `EventDispatcherInterface`.
+If an event dispatcher is set, it is also expected to trigger two events when
+file contents are being processed:
+
+- `ProcessorEvents::PRE_PROCESSING`
+- `ProcessorEvents::POST_PROCESSING`
+
+The `PRE_PROCESSING` event is dispatched before the file contents are processed.
+Listeners are given an instance of `PreProcessingEvent` with the current file
+name and contents. This particular event also provides an opportunity to prevent
+the file contents from being processed at all.
+
+The `POST_PROCESSING` event is dispatched after the file contents have been
+processed. Listeners are given an instance of `PostProcessingEvent` with the
+file name and contents after the processing has taken place.
+
 License
 -------
 
@@ -242,3 +272,5 @@ This software is released under the MIT license.
 [Latest Stable Version]: https://poser.pugx.org/box-project/processor/v/stable.png
 [Latest Unstable Version]: https://poser.pugx.org/box-project/processor/v/unstable.png
 [Total Downloads]: https://poser.pugx.org/box-project/processor/downloads.png
+
+[EventDispatcher]: http://symfony.com/doc/current/components/event_dispatcher/introduction.html#usage
