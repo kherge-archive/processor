@@ -148,9 +148,90 @@ $processor = new CompactProcessor(
 
     // default is to strip comments
     true
-    
+
 );
 ```
+
+Batch Processing
+----------------
+
+**Processor** is designed around the ability to batch process multiple files
+with multiple processors.
+
+### Multiple Processors
+
+```php
+use Box\Component\Processor\DelegatingProcessor;
+use Box\Component\Processor\ProcessorResolver;
+```
+
+In order to use multiple processors at once without worrying if they are of the
+supported file type, the `DelegatingLoader` is used with `ProcessorResolver`.
+The `ProcessorResolver` class simply holds a collection of processors, while
+the `DelegatingProcessor` is responsible for finding all compatible processors
+and running the file contents through them.
+
+```php
+use Box\Component\Processor\Processor\Any\ReplaceProcessor;
+use Box\Component\Processor\Processor\JSON\CompactProcessor as JsonCompactor;
+use Box\Component\Processor\Processor\PHP\CompactProcessor as PhpCompactor;
+
+$processor = new DelegatingProcessor(
+    new ProcessorResolver(
+        array(
+            new JsonCompactor(),
+            new PhpCompactor(),
+            (new ReplaceProcessor())
+                ->setReplacement('/{{\s*name\s*}}/', 'world')
+                ->setExtensions(array('json', 'php'))
+
+        )
+    )
+);
+```
+
+The example `DelegatingProcessor` above will compact JSON source code, PHP
+source code, and replace `{{ name }}` with "world" in either JSON or PHP source
+code.
+
+### Iterator Processing
+
+Included with **Processor** is an iterator that will use a given processor
+against a given iterator. The `ProcessorIterator` will then return the contents
+as a stream, which can then be read.
+
+```php
+use Box\Component\Processor\ProcessorIterator;
+
+$iterator = new ProcessorIterator(
+
+    // processor to use for each iteration
+    (new ReplaceProcessor())
+        ->setReplacement('/\{\{\s*name\s*\}\}/', 'world')
+        ->setExtensions(array('txt')),
+
+    // files to iterate through
+    new ArrayIterator(
+        array(
+            '/path/to/hello.txt' => 'Hello, {{ name }}!',
+        )
+    ),
+
+    // base directory path to trim (optional)
+    '/path/to/'
+);
+
+foreach ($iterator as $name => $stream) {
+    echo $name, "\n"; // "hello.txt"
+
+    fpassthru($stream); // "Hello, world!"
+}
+```
+
+Each file in the iterator will be processed by the processor if the file is
+supported. While the key must always be the path to the file, the value may
+be the path to the file, an instance of `SplFileObject`, or the contents of
+the file.
 
 License
 -------
