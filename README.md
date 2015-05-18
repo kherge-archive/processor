@@ -67,7 +67,7 @@ class MyProcessor extends AbstractProcessor
     {
         return str_replace(1, 2, $contents);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -129,10 +129,10 @@ $processor = new CompactProcessor(
 
     // default json_decode() options
     JSON_BIGINT_AS_STRING,
-    
+
     // default json_encode() options
     JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-    
+
 );
 ```
 
