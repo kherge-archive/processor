@@ -1,0 +1,50 @@
+{
+    "name": "box-project/processor",
+    "description": "A library for processing file contents.",
+    "license": "MIT",
+    "homepage": "http://box-project.org",
+    "support": {
+        "issues": "https://github.com/box-project/processor/issues",
+        "source": "https://github.com/box-project/processor",
+        "wiki": "https://github.com/box-project/processor/wiki"
+    },
+
+    "authors": [
+        {
+            "name": "Kevin Herrera",
+            "email": "kevin@herrera.io",
+            "homepage": "http://kevin.herrera.io/",
+            "role": "Developer"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Box\\Component\\Processor\\": ""
+        }
+    },
+
+    "config": {
+        "bin-dir": "bin"
+    },
+
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
+
+    "require": {
+        "php": ">=5.4",
+        "kherge/file": "~1.3"
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "~4.6",
+        "symfony/event-dispatcher": "2.5.*"
+    },
+
+    "suggest": {
+        "symfony/event-dispatcher": "Enables support for observing processing events."
+    }
+}
