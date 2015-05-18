@@ -25,6 +25,8 @@ interface ProcessorInterface
      * Sets the event dispatcher.
      *
      * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     *
+     * @return ProcessorInterface For method chaining.
      */
     public function setEventDispatcher(
         EventDispatcherInterface $dispatcher = null

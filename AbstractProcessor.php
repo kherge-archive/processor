@@ -71,16 +71,22 @@ abstract class AbstractProcessor implements ProcessorInterface
         EventDispatcherInterface $dispatcher = null
     ) {
         $this->eventDispatcher = $dispatcher;
+
+        return $this;
     }
 
     /**
      * Sets the supported file extensions.
      *
      * @param array $extensions The supported file extensions.
+     *
+     * @return $this For method chaining.
      */
     public function setExtensions(array $extensions)
     {
         $this->extensions = $extensions;
+
+        return $this;
     }
 
     /**

@@ -39,7 +39,10 @@ class AbstractProcessorTest extends TestCase
      */
     public function testProcessContents()
     {
-        $this->processor->setEventDispatcher($this->eventDispatcher);
+        self::assertSame(
+            $this->processor,
+            $this->processor->setEventDispatcher($this->eventDispatcher)
+        );
 
         $processor = $this->processor;
 
@@ -156,7 +159,10 @@ class AbstractProcessorTest extends TestCase
         self::assertFalse($this->processor->supports('test.html'));
         self::assertTrue($this->processor->supports('test.php'));
 
-        $this->processor->setExtensions(array('html'));
+        self::assertSame(
+            $this->processor,
+            $this->processor->setExtensions(array('html'))
+        );
 
         self::assertTrue($this->processor->supports('test.html'));
         self::assertFalse($this->processor->supports('test.php'));
