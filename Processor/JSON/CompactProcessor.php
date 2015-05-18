@@ -32,10 +32,16 @@ class CompactProcessor extends AbstractProcessor
      * @param integer $decode The decoding options.
      * @param integer $encode The encoding options.
      */
-    public function __construct(
-        $decode = JSON_BIGINT_AS_STRING,
-        $encode = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-    ) {
+    public function __construct($decode = null, $encode = null)
+    {
+        if (null === $decode) {
+            $decode = JSON_BIGINT_AS_STRING;
+        }
+
+        if (null === $encode) {
+            $encode = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+        }
+
         $this->decode = $decode;
         $this->encode = $encode;
     }
