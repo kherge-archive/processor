@@ -14,6 +14,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * Verifies that the class functions as intended.
  *
  * @author Kevin Herrera <kevin@herrera.io>
+ *
+ * @covers \Box\Component\Processor\Event\AbstractProcessorEvent
  */
 class AbstractProcessorTest extends TestCase
 {
@@ -33,9 +35,6 @@ class AbstractProcessorTest extends TestCase
 
     /**
      * Verifies that we can process contents.
-     *
-     * @covers \Box\Component\Processor\AbstractProcessor::processContents
-     * @covers \Box\Component\Processor\AbstractProcessor::setEventDispatcher
      */
     public function testProcessContents()
     {
@@ -63,8 +62,6 @@ class AbstractProcessorTest extends TestCase
                 TestCase::assertEquals('bcd', $event->getContents());
                 TestCase::assertEquals('a', $event->getFile());
                 TestCase::assertSame($processor, $event->getProcessor());
-
-                $event->setContents($event->getContents() . 'e');
             }
         );
 
@@ -77,7 +74,7 @@ class AbstractProcessorTest extends TestCase
         ;
 
         self::assertEquals(
-            'bcde',
+            'bcd',
             $this->processor->processContents('a', 'b')
         );
 
@@ -96,8 +93,6 @@ class AbstractProcessorTest extends TestCase
 
     /**
      * Verifies that we can skip files.
-     *
-     * @covers \Box\Component\Processor\AbstractProcessor::processContents
      */
     public function testProcessContentsSkip()
     {
@@ -142,10 +137,6 @@ class AbstractProcessorTest extends TestCase
 
     /**
      * Verifies that we can check for supported file extensions.
-     *
-     * @covers \Box\Component\Processor\AbstractProcessor::getDefaultExtensions
-     * @covers \Box\Component\Processor\AbstractProcessor::setExtensions
-     * @covers \Box\Component\Processor\AbstractProcessor::supports
      */
     public function testSupports()
     {

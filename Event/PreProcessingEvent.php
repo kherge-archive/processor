@@ -27,6 +27,34 @@ class PreProcessingEvent extends AbstractProcessorEvent
     }
 
     /**
+     * Sets the contents of the file.
+     *
+     * @param string $contents The contents of the file.
+     *
+     * @return PreProcessingEvent For method chaining.
+     */
+    public function setContents($contents)
+    {
+        $this->contents = $contents;
+
+        return $this;
+    }
+
+    /**
+     * Sets the path of the file.
+     *
+     * @param string $file The path of the file.
+     *
+     * @return PreProcessingEvent For method chaining.
+     */
+    public function setFile($file)
+    {
+        $this->file = $file;
+
+        return $this;
+    }
+
+    /**
      * Skips the current file for processing.
      *
      * This will also prevent further event propagation.

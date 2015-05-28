@@ -17,21 +17,21 @@ abstract class AbstractProcessorEvent extends Event
      *
      * @var string
      */
-    private $contents;
+    protected $contents;
 
     /**
      * The path to the file.
      *
      * @var string
      */
-    private $file;
+    protected $file;
 
     /**
      * The processor.
      *
      * @var ProcessorInterface
      */
-    private $processor;
+    protected $processor;
 
     /**
      * Sets the event arguments.
@@ -78,25 +78,5 @@ abstract class AbstractProcessorEvent extends Event
     public function getProcessor()
     {
         return $this->processor;
-    }
-
-    /**
-     * Sets the contents of the file.
-     *
-     * @param string $contents The contents of the file.
-     */
-    public function setContents($contents)
-    {
-        $this->contents = $contents;
-    }
-
-    /**
-     * Sets the path of the file.
-     *
-     * @param string $file The path of the file.
-     */
-    public function setFile($file)
-    {
-        $this->file = $file;
     }
 }
