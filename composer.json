@@ -36,10 +36,12 @@
 
     "require": {
         "php": ">=5.4",
-        "kherge/file": "~1.3"
+        "kherge/file": "~1.3",
+        "psr/log": "~1.0"
     },
 
     "require-dev": {
+        "monolog/monolog": "~1.6",
         "phpunit/phpunit": "~4.6",
         "symfony/config": "2.5.*",
         "symfony/dependency-injection": "2.5.*",
@@ -47,6 +49,7 @@
     },
 
     "suggest": {
+        "monolog/monolog": "For logging the processing events.",
         "symfony/dependency-injection": "To register tagged processor services.",
         "symfony/event-dispatcher": "Enables support for observing processing events."
     }
