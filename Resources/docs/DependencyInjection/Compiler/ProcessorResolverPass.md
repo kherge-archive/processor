@@ -14,6 +14,20 @@ for a processor resolver. You simply need to provide:
 - The name of the processor tag.
   (default: `box.processor`)
 
+To use `ProcessorResolverPass`, you must have already registered the services
+you have specified in the constructor for the class. If the default arguments
+are used, you must name your services using the default values.
+
+| Service ID (default)       | Expected Class/Interface                             |
+|:---------------------------|:-----------------------------------------------------|
+| `box.processor_collection` | `Box\Component\Processor\ProcessorCollection`        |
+| `box.processor_resolver`   | `Box\Component\Processor\ProcessorResolverInterface` |
+
+All tagged services must implement `Box\Component\Processor\ProcessorInterface`.
+
+Example
+-------
+
 ```php
 use Box\Component\Processor\DelegatingProcessor;
 use Box\Component\Processor\DependencyInjection\Compiler\ProcessorResolverPass;
