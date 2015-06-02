@@ -19,6 +19,9 @@
     ],
 
     "autoload": {
+        "files": [
+            "File/JSON/constants.php"
+        ],
         "psr-4": {
             "Box\\Component\\Processor\\": ""
         }

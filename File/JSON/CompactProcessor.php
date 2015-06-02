@@ -6,20 +6,6 @@ use Box\Component\Processor\Exception\ProcessingException;
 use Box\Component\Processor\AbstractProcessor;
 use Box\Component\Processor\Traits\SupportsFileExtensionsTrait;
 
-// @codeCoverageIgnoreStart
-if (!defined('JSON_ERROR_RECURSION')) {
-    define('JSON_ERROR_RECURSIVE', '');
-}
-
-if (!defined('JSON_ERROR_INF_OR_NAN')) {
-    define('JSON_ERROR_INF_OR_NAN', '');
-}
-
-if (!defined('JSON_ERROR_UNSUPPORTED_TYPE')) {
-    define('JSON_ERROR_UNSUPPORTED_TYPE', '');
-}
-// @codeCoverageIgnoreEnd
-
 /**
  * Removes all whitespace in JSON data.
  *
