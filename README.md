@@ -28,6 +28,8 @@ echo $processor->processContents('example.txt', 'Hello, {{ name }}!');
 > related processes are a secondary concern and may not be patched if in
 > conflict.
 
+You can find the documentation in [`Resources/docs`][].
+
 Requirements
 ------------
 
@@ -50,3 +52,5 @@ This software is released under the MIT license.
 [Latest Stable Version]: https://poser.pugx.org/box-project/processor/v/stable.png
 [Latest Unstable Version]: https://poser.pugx.org/box-project/processor/v/unstable.png
 [Total Downloads]: https://poser.pugx.org/box-project/processor/downloads.png
+
+[`Resources/docs`]: /Resources/docs/
