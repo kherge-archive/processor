@@ -2,19 +2,16 @@
 
 namespace Box\Component\Processor;
 
+use Box\Component\Processor\Traits\HasResolverTrait;
+
 /**
- * The default implementation for the delegating processor interface.
+ * Delegates processing to one or more processors using a resolver.
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
-class DelegatingProcessor extends AbstractProcessor implements DelegatingProcessorInterface
+class DelegatingProcessor extends AbstractProcessor
 {
-    /**
-     * The processor resolver.
-     *
-     * @var ProcessorResolverInterface
-     */
-    private $resolver;
+    use HasResolverTrait;
 
     /**
      * Sets the processor resolver.
@@ -29,14 +26,6 @@ class DelegatingProcessor extends AbstractProcessor implements DelegatingProcess
     /**
      * {@inheritdoc}
      */
-    public function getResolver()
-    {
-        return $this->resolver;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function supports($file)
     {
         return (0 < count($this->resolver->resolve($file)));
@@ -45,22 +34,12 @@ class DelegatingProcessor extends AbstractProcessor implements DelegatingProcess
     /**
      * {@inheritdoc}
      */
-    protected function doProcess($file, $contents)
+    protected function doProcessing($file, $contents)
     {
         foreach ($this->resolver->resolve($file) as $processor) {
-            $contents = $processor->processContents($file, $contents);
+            $contents = $processor->process($file, $contents);
         }
 
         return $contents;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @codeCoverageIgnore
-     */
-    protected function getDefaultExtensions()
-    {
-        return array();
     }
 }

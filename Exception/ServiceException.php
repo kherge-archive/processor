@@ -2,13 +2,13 @@
 
 namespace Box\Component\Processor\Exception;
 
-use Exception;
+use LogicException;
 
 /**
- * Thrown for processor related errors.
+ * Throw for container service related issues.
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
-class ProcessorException extends Exception
+class ServiceException extends LogicException
 {
 }

@@ -3,47 +3,27 @@
 namespace Box\Component\Processor;
 
 /**
- * The default implementation of the processor resolver interface.
+ * Manages a resolvable list of processors in a collection.
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
 class ProcessorResolver implements ProcessorResolverInterface
 {
     /**
-     * The processors.
+     * The collection of processors.
      *
-     * @var ProcessorInterface[]
+     * @var ProcessorCollection|ProcessorInterface[]
      */
     private $processors;
 
     /**
-     * Sets the list of processors.
+     * Initializes the collection of processors.
      *
-     * @param ProcessorInterface[] $processors The list of processors.
+     * @param null|ProcessorCollection $processors The collection of processors.
      */
-    public function __construct(array $processors = array())
+    public function __construct(ProcessorCollection $processors)
     {
-        foreach ($processors as $processor) {
-            $this->addProcessor($processor);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addProcessor(ProcessorInterface $processor)
-    {
-        $this->processors[] = $processor;
-    }
-
-    /**
-     * Returns the processors in the resolver.
-     *
-     * @return ProcessorInterface[] The list of processors.
-     */
-    public function getProcessors()
-    {
-        return $this->processors;
+        $this->processors = $processors;
     }
 
     /**

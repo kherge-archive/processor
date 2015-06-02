@@ -4,105 +4,61 @@ namespace Box\Component\Processor;
 
 use Box\Component\Processor\Event\PostProcessingEvent;
 use Box\Component\Processor\Event\PreProcessingEvent;
+use Box\Component\Processor\Event\SkippedProcessingEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Manages common functionality shared by most processors.
+ * Serves as the base for compliant processors.
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
 abstract class AbstractProcessor implements ProcessorInterface
 {
     /**
-     * The supported file extensions.
-     *
-     * @var array
-     */
-    private $extensions;
-
-    /**
      * The event dispatcher.
      *
      * @var EventDispatcherInterface
      */
-    private $eventDispatcher;
+    private $dispatcher;
 
     /**
      * {@inheritdoc}
      */
-    public function processContents($file, $contents)
+    public function process($file, $contents)
     {
-        if (null === $this->eventDispatcher) {
-            return $this->doProcess($file, $contents);
+        if (null === $this->dispatcher) {
+            return $this->doProcessing($file, $contents);
         }
 
-        $event = new PreProcessingEvent($this, $file, $contents);
+        $event = $this->dispatchPreProcessing($file, $contents);
 
-        $this->eventDispatcher->dispatch(
-            Events::PRE_PROCESSING,
-            $event
-        );
+        if ($event->isSkipped()) {
+            $this->dispatchSkippedProcessing($file, $contents);
 
-        if ($event->isFileSkipped()) {
-            return $event->getContents();
+            return $contents;
         }
 
-        $event = new PostProcessingEvent(
-            $this,
-            $event->getFile(),
-            $this->doProcess(
+        return $this
+            ->dispatchPostProcessing(
                 $event->getFile(),
-                $event->getContents()
+                $this->doProcessing(
+                    $event->getFile(),
+                    $event->getContents()
+                )
             )
-        );
-
-        $this->eventDispatcher->dispatch(
-            Events::POST_PROCESSING,
-            $event
-        );
-
-        return $event->getContents();
+            ->getContents()
+        ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setEventDispatcher(
+    public function setDispatcher(
         EventDispatcherInterface $dispatcher = null
     ) {
-        $this->eventDispatcher = $dispatcher;
+        $this->dispatcher = $dispatcher;
 
         return $this;
-    }
-
-    /**
-     * Sets the supported file extensions.
-     *
-     * @param array $extensions The supported file extensions.
-     *
-     * @return $this For method chaining.
-     */
-    public function setExtensions(array $extensions)
-    {
-        $this->extensions = $extensions;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supports($file)
-    {
-        if (null === $this->extensions) {
-            $this->extensions = $this->getDefaultExtensions();
-        }
-
-        return in_array(
-            pathinfo($file, PATHINFO_EXTENSION),
-            $this->extensions,
-            true
-        );
     }
 
     /**
@@ -113,12 +69,77 @@ abstract class AbstractProcessor implements ProcessorInterface
      *
      * @return string The processed contents of the file.
      */
-    abstract protected function doProcess($file, $contents);
+    abstract protected function doProcessing($file, $contents);
 
     /**
-     * Returns the default list of supported file extensions.
+     * Dispatches the post-processing event.
      *
-     * @return array The list of supported file extensions.
+     * @param string $file     The path to the file.
+     * @param string $contents The contents of the file.
+     *
+     * @return PostProcessingEvent The post-processing event argument.
      */
-    abstract protected function getDefaultExtensions();
+    private function dispatchPostProcessing($file, $contents)
+    {
+        $event = new PostProcessingEvent(
+            $this,
+            $file,
+            $contents
+        );
+
+        $this->dispatcher->dispatch(
+            Events::POST_PROCESSING,
+            $event
+        );
+
+        return $event;
+    }
+
+    /**
+     * Dispatches the pre-processing event.
+     *
+     * @param string $file     The path to the file.
+     * @param string $contents The contents of the file.
+     *
+     * @return PreProcessingEvent The pre-processing event argument.
+     */
+    private function dispatchPreProcessing($file, $contents)
+    {
+        $event = new PreProcessingEvent(
+            $this,
+            $file,
+            $contents
+        );
+
+        $this->dispatcher->dispatch(
+            Events::PRE_PROCESSING,
+            $event
+        );
+
+        return $event;
+    }
+
+    /**
+     * Dispatches the skipped processing event.
+     *
+     * @param string $file     The path to the file.
+     * @param string $contents The contents of the file.
+     *
+     * @return SkippedProcessingEvent The skipped processing event argument.
+     */
+    private function dispatchSkippedProcessing($file, $contents)
+    {
+        $event = new SkippedProcessingEvent(
+            $this,
+            $file,
+            $contents
+        );
+
+        $this->dispatcher->dispatch(
+            Events::SKIPPED_PROCESSING,
+            $event
+        );
+
+        return $event;
+    }
 }

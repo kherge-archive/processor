@@ -10,13 +10,6 @@ namespace Box\Component\Processor;
 interface ProcessorResolverInterface
 {
     /**
-     * Adds a processor to the resolver.
-     *
-     * @param ProcessorInterface $processor The processor.
-     */
-    public function addProcessor(ProcessorInterface $processor);
-
-    /**
      * Returns the supported processors for the file.
      *
      * @param string $file The path to the file.

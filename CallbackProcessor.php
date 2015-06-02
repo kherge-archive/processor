@@ -36,7 +36,19 @@ class CallbackProcessor extends AbstractProcessor
     }
 
     /**
-     * {@inheritdoc}
+     * Invokes the support call back and returns the result.
+     *
+     * The following is an example of a support callback:
+     *
+     * ```php
+     * function ($file) {
+     *     // ... check for support ...
+     * }
+     * ```
+     *
+     * @param string $file The path to the file.
+     *
+     * @return boolean Returns `true` if supported, `false` if not.
      */
     public function supports($file)
     {
@@ -44,20 +56,23 @@ class CallbackProcessor extends AbstractProcessor
     }
 
     /**
-     * {@inheritdoc}
+     * Invokes the processing callback and returns the result.
+     *
+     * The following is an example of a processing callback.
+     *
+     * ```php
+     * function ($file, $contents) {
+     *     // ... process contents ...
+     * }
+     * ```
+     *
+     * @param string $file     The path to the file.
+     * @param string $contents The contents of the file.
+     *
+     * @return string The processed contents of the file.
      */
-    protected function doProcess($file, $contents)
+    protected function doProcessing($file, $contents)
     {
         return call_user_func($this->processor, $file, $contents);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @codeCoverageIgnore
-     */
-    protected function getDefaultExtensions()
-    {
-        return array();
     }
 }

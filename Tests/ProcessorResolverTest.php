@@ -1,138 +1,107 @@
 <?php
 
-namespace Box\Component\Processor\Tests\Processor;
+namespace Box\Component\Processor\Tests;
 
-use Box\Component\Processor\ProcessorInterface;
+use Box\Component\Processor\CallbackProcessor;
+use Box\Component\Processor\ProcessorCollection;
 use Box\Component\Processor\ProcessorResolver;
 use PHPUnit_Framework_TestCase as TestCase;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 /**
  * Verifies that the class functions as intended.
  *
  * @author Kevin Herrera <kevin@herrera.io>
  *
- * @covers \Box\Component\Processor\ProcessorResolver::__construct
+ * @coversDefaultClass \Box\Component\Processor\ProcessorResolver
+ *
+ * @covers ::__construct
  */
 class ProcessorResolverTest extends TestCase
 {
     /**
-     * A mock processor.
+     * The processor collection.
      *
-     * @var MockObject|ProcessorInterface
+     * @var ProcessorCollection
      */
-    private $processorA;
+    private $collection;
 
     /**
-     * A mock processor.
+     * The first processor for ".php" files.
      *
-     * @var MockObject|ProcessorInterface
+     * @var CallbackProcessor
      */
-    private $processorB;
+    private $phpProcessorA;
 
     /**
-     * The processor resolver instance being tested.
+     * The second processor for ".php" files.
+     *
+     * @var CallbackProcessor
+     */
+    private $phpProcessorB;
+
+    /**
+     * The processor for ".png" files.
+     *
+     * @var CallbackProcessor
+     */
+    private $pngProcessor;
+
+    /**
+     * The processor resolver.
      *
      * @var ProcessorResolver
      */
     private $resolver;
 
     /**
-     * Verifies that we can add and retrieve the processors in the resolver.
+     * Verifies that we can retrieve the supported processors.
      *
-     * @covers \Box\Component\Processor\ProcessorResolver::addProcessor
-     * @covers \Box\Component\Processor\ProcessorResolver::getProcessors
+     * @covers ::resolve
      */
-    public function testProcessors()
+    public function testResolveSupportedFileTypes()
     {
-        /** @var MockObject|ProcessorInterface $processorC */
-        $processorC = $this
-            ->getMockBuilder('Box\Component\Processor\ProcessorInterface')
-            ->getMockForAbstractClass()
-        ;
+        // get the supported processors for each file type
+        $php = $this->resolver->resolve('test.php');
+        $png = $this->resolver->resolve('test.png');
 
-        $this->resolver->addProcessor($processorC);
-
-        self::assertSame(
-            array(
-                $this->processorA,
-                $this->processorB,
-                $processorC
-            ),
-            $this->resolver->getProcessors()
-        );
+        // make sure we get the exact processors we put in for each type
+        self::assertCount(2, $php);
+        self::assertContains($this->phpProcessorA, $php);
+        self::assertContains($this->phpProcessorA, $php);
+        self::assertCount(1, $png);
     }
 
     /**
-     * Verifies that we can resolve the processors.
-     *
-     * @covers \Box\Component\Processor\ProcessorResolver::resolve
-     */
-    public function testResolve()
-    {
-        $this
-            ->processorA
-            ->expects(self::at(0))
-            ->method('supports')
-            ->with('test.txt')
-            ->willReturn(false)
-        ;
-
-        $this
-            ->processorA
-            ->expects(self::at(1))
-            ->method('supports')
-            ->with('test.php')
-            ->willReturn(true)
-        ;
-
-        $this
-            ->processorB
-            ->expects(self::at(0))
-            ->method('supports')
-            ->with('test.txt')
-            ->willReturn(true)
-        ;
-
-        $this
-            ->processorB
-            ->expects(self::at(1))
-            ->method('supports')
-            ->with('test.php')
-            ->willReturn(false)
-        ;
-
-        self::assertSame(
-            array($this->processorB),
-            $this->resolver->resolve('test.txt')
-        );
-
-        self::assertSame(
-            array($this->processorA),
-            $this->resolver->resolve('test.php')
-        );
-    }
-
-    /**
-     * Creates a new processor resolver instance for testing.
+     * Creates a new collection of processors and a resolver.
      */
     protected function setUp()
     {
-        $this->processorA = $this
-            ->getMockBuilder('Box\Component\Processor\ProcessorInterface')
-            ->getMockForAbstractClass()
-        ;
-
-        $this->processorB = $this
-            ->getMockBuilder('Box\Component\Processor\ProcessorInterface')
-            ->getMockForAbstractClass()
-        ;
-
-        $this->resolver = new ProcessorResolver(
-            array(
-                $this->processorA,
-                $this->processorB
-            )
+        $this->phpProcessorA = new CallbackProcessor(
+            function ($file) {
+                return (bool) preg_match('/\.php$/', $file);
+            },
+            function () {}
         );
+
+        $this->phpProcessorB = new CallbackProcessor(
+            function ($file) {
+                return (bool) preg_match('/\.php$/', $file);
+            },
+            function () {}
+        );
+
+        $this->pngProcessor = new CallbackProcessor(
+            function ($file) {
+                return (bool) preg_match('/\.png$/', $file);
+            },
+            function () {}
+        );
+
+        $this->collection = new ProcessorCollection();
+        $this->collection->attach($this->phpProcessorA);
+        $this->collection->attach($this->phpProcessorB);
+        $this->collection->attach($this->pngProcessor);
+
+        $this->resolver = new ProcessorResolver($this->collection);
     }
 }
