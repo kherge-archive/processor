@@ -2,6 +2,8 @@
 
 namespace Box\Component\Processor\Event;
 
+use Box\Component\Processor\Event\Traits\CanSetFileContentsTrait;
+use Box\Component\Processor\Event\Traits\CanSetFilePathTrait;
 use Box\Component\Processor\Event\Traits\HasFileContentsTrait;
 use Box\Component\Processor\Event\Traits\HasFilePathTrait;
 use Box\Component\Processor\Event\Traits\HasProcessorTrait;
@@ -16,6 +18,8 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class PreProcessingEvent extends Event
 {
+    use CanSetFileContentsTrait;
+    use CanSetFilePathTrait;
     use HasFileContentsTrait;
     use HasFilePathTrait;
     use HasProcessorTrait;
@@ -33,33 +37,5 @@ class PreProcessingEvent extends Event
         $this->contents = $contents;
         $this->file = $file;
         $this->processor = $processor;
-    }
-
-    /**
-     * Sets the contents of the file.
-     *
-     * @param string $contents The contents of the file.
-     *
-     * @return PreProcessingEvent For method chaining.
-     */
-    public function setContents($contents)
-    {
-        $this->contents = $contents;
-
-        return $this;
-    }
-
-    /**
-     * Sets the path to the file.
-     *
-     * @param string $file The path to the file.
-     *
-     * @return PreProcessingEvent For method chaining.
-     */
-    public function setFile($file)
-    {
-        $this->file = $file;
-
-        return $this;
     }
 }
