@@ -28,6 +28,9 @@ echo $processor->processContents('example.txt', 'Hello, {{ name }}!');
 > related processes are a secondary concern and may not be patched if in
 > conflict.
 
+Documentation
+-------------
+
 You can find the documentation in [`Resources/docs`][].
 
 Requirements
